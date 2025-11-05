@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_DIRECT")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  walks     WalkSegment[]
+  events    EventSnapshot[]
+  createdAt DateTime @default(now())
+}
+
+model EventSnapshot {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields:[userId], references:[id])
+  userId    String
+  title     String
+  location  String?
+  startTime DateTime
+  createdAt DateTime @default(now())
+  walks     WalkSegment[]
+}
+
+model WalkSegment {
+  id               String   @id @default(cuid())
+  user             User     @relation(fields:[userId], references:[id])
+  userId           String
+  event            EventSnapshot? @relation(fields:[eventId], references:[id])
+  eventId          String?
+  origin           String?
+  destination      String?
+  googleEtaMin     Int
+  plannedDepartAt  DateTime?
+  actualDepartAt   DateTime
+  arriveAt         DateTime?
+  actualDurationMin Int?
+  paceFactor       Float?   // actualDurationMin / googleEtaMin
+  gpsSamples       Json?
+  createdAt        DateTime @default(now())
+}
