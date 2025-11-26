@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output = "./../src/generated/"
 }
 
 datasource db {
@@ -14,39 +15,65 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  walks     WalkSegment[]
-  events    EventSnapshot[]
-  createdAt DateTime @default(now())
+model UserProfile {
+  userId            String   @id                // Supabase UID
+  defaultBufferMin  Int      @default(5)
+  walkingSpeedFactor Float   @default(1.0)
+  campusHomeLabel   String?
+  campusHomeLat     Float?
+  campusHomeLng     Float?
+
+  notificationsEnabled Boolean @default(true)
+  quietHoursStart    String? // e.g. "22:00"
+  quietHoursEnd      String? // e.g. "07:00"
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  calendarSnapshots  CalendarSnapshot[]
+  walkSegments       WalkSegment[]
 }
 
-model EventSnapshot {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields:[userId], references:[id])
-  userId    String
-  title     String
-  location  String?
-  startTime DateTime
-  createdAt DateTime @default(now())
-  walks     WalkSegment[]
+model CalendarSnapshot {
+  id           String   @id @default(cuid())
+  userId       String
+  capturedAt   DateTime @default(now())
+  eventsJson   Json     // normalized events for a rolling window
+  calendarSyncId String?
+
+  user         UserProfile @relation(fields: [userId], references: [userId])
+  walkSegments WalkSegment[]
+
+  @@index([userId, capturedAt])
 }
 
 model WalkSegment {
-  id               String   @id @default(cuid())
-  user             User     @relation(fields:[userId], references:[id])
-  userId           String
-  event            EventSnapshot? @relation(fields:[eventId], references:[id])
-  eventId          String?
-  origin           String?
-  destination      String?
-  googleEtaMin     Int
-  plannedDepartAt  DateTime?
-  actualDepartAt   DateTime
-  arriveAt         DateTime?
-  actualDurationMin Int?
-  paceFactor       Float?   // actualDurationMin / googleEtaMin
-  gpsSamples       Json?
-  createdAt        DateTime @default(now())
+  id              String   @id @default(cuid())
+  userId          String
+  calendarEventId String
+  snapshotId      String
+
+  departureTime   DateTime
+  arrivalTime     DateTime
+  etaMinutes      Int
+  bufferMinutes   Int
+
+  originLabel      String?
+  originLat        Float
+  originLng        Float
+  destinationLabel String?
+  destinationLat   Float
+  destinationLng   Float
+
+  status          String   @default("scheduled")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            UserProfile      @relation(fields: [userId], references: [userId])
+  snapshot        CalendarSnapshot @relation(fields: [snapshotId], references: [id])
+
+  @@index([userId, departureTime])
+  @@index([userId, calendarEventId])
 }
+

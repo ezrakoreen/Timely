@@ -11,6 +11,8 @@ const envSchema = z.object({
 
     SUPABASE_JWT_SECRET: z.string(),
     SUPABASE_PROJECT_ID: z.string(),
+    SUPABASE_URL: z.string(),
+    SUPABASE_ANON_KEY: z.string(),
 
     FRONTEND_ORIGIN: z.url().optional(),
 })

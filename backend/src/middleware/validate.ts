@@ -1,6 +1,5 @@
-// src/middleware/validate.ts
 import type { Request, Response, NextFunction } from "express";
-import { ZodError, type ZodType } from "zod";
+import { z, ZodError, type ZodType } from "zod";
 
 type RequestPart = "body" | "query" | "params";
 
@@ -27,7 +26,6 @@ export function validateRequest(schemas: SchemaMap) {
           });
         }
 
-        // Replace with parsed (and possibly coerced) data
         (req as any)[key] = result.data;
       });
 
@@ -35,5 +33,19 @@ export function validateRequest(schemas: SchemaMap) {
     } catch (err) {
       return next(err);
     }
+  };
+}
+
+export function validateBody(schema: z.Schema) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({
+        error: "Invalid request body",
+        issues: result.error.issues,
+      });
+    }
+    req.body = result.data;
+    next();
   };
 }

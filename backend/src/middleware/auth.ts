@@ -1,11 +1,9 @@
-// src/middleware/auth.ts
 import type { Request, Response, NextFunction } from "express";
 import { jwtVerify, type JWTPayload } from "jose";
 import { env } from "../config/env.js";
 
 const AUTH_HEADER_PREFIX = "Bearer ";
 
-// Supabase usually uses HS256 with the service key / JWT secret
 async function verifyToken(token: string): Promise<JWTPayload> {
   const secret = new TextEncoder().encode(env.SUPABASE_JWT_SECRET);
 
@@ -36,10 +34,14 @@ export async function requireAuth(
 
     const payload = await verifyToken(token);
 
-    // Attach to req.user for downstream handlers
-    req.user = {
-      ...(payload as any),
-    };
+    const userId  = payload.sub as string | undefined
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ error: "Token missing user identifier" });
+    }
+
+    req.userId = userId
 
     return next();
   } catch (err) {

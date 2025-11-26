@@ -3,10 +3,14 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
-
 import { env } from "./config/env.js";
-import userRouter from "./routes/user.js";
+import userProfileRouter from "./routes/userProfile.js";
+import walkSegmentRouter from "./routes/walkSegment.js";
+import calendarSnapshotRouter from "./routes/calendarSnapshot.js";
 import { requireAuth } from "./middleware/auth.js"
+import { notFound, errorHandler } from "./middleware/errorHandler.js";
+import healthRouter from "./routes/health.js";
+
 
 const app = express();
 
@@ -46,6 +50,12 @@ const apiLimiter = rateLimit({
 app.use("/api", apiLimiter);
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
-app.use("/api/users", requireAuth, userRouter);
+app.use("/api/user-profile", requireAuth, userProfileRouter);
+app.use("/api/calendar-snapshots", requireAuth, calendarSnapshotRouter);
+app.use("/api/walk-segments", requireAuth, walkSegmentRouter);
+app.use("/health", healthRouter);
+
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
