@@ -1,6 +1,6 @@
-import Card from "@/components/Card";
-import Screen from "@/components/Screen";
-import { useTheme } from "@/hooks/useTheme";
+import Card from "@/src/components/Card";
+import Screen from "@/src/components/Screen";
+import { useTheme } from "@/src/hooks/useTheme";
 import { useState } from "react";
 import { Switch, Text, View } from "react-native";
 

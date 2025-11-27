@@ -1,5 +1,5 @@
 // app/(tabs)/_layout.tsx
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "@/src/hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 

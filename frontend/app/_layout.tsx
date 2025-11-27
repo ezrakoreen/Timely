@@ -1,23 +1,53 @@
 // app/_layout.tsx
-import { useTheme } from "@/hooks/useTheme";
 import { Stack } from "expo-router";
+import { View, ActivityIndicator } from "react-native";
+import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
+import { AuthProvider, useAuth } from "../src/context/AuthContext";
+import { useTheme } from "../src/hooks/useTheme";
 
-export default function RootLayout() {
+
+function RootLayoutInner() {
   const { colors } = useTheme();
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.bg,
+        }}
+      >
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  const initialRoute = session ? "(tabs)" : "(auth)";
 
   return (
     <Stack
+      initialRouteName={initialRoute}
       screenOptions={{
         headerStyle: { backgroundColor: colors.card },
         headerTitleStyle: { color: colors.text },
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
-      {/* (tabs) is the initial route */}
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      {/* You can add modal or stack routes later:
-          <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
-      */}
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <RootLayoutInner />
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }

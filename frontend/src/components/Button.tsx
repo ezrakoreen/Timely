@@ -1,13 +1,14 @@
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "@/src/hooks/useTheme";
 import { Pressable, StyleSheet, Text } from "react-native";
 
 type Props = {
   title: string;
   onPress: () => void;
   variant?: "primary" | "ghost";
+  disabled?: boolean;
 };
 
-export default function Button({ title, onPress, variant = "primary" }: Props) {
+export default function Button({ title, onPress, variant = "primary", disabled = false }: Props) {
   const { colors, radii, spacing } = useTheme();
   const isGhost = variant === "ghost";
 

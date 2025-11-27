@@ -1,4 +1,4 @@
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "@/src/hooks/useTheme";
 import { PropsWithChildren } from "react";
 import { StyleSheet, View } from "react-native";
 

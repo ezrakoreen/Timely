@@ -4,7 +4,7 @@ import {
   radii,
   spacing,
   typography,
-} from "@/constants/theme";
+} from "@/src/constants/theme";
 import { useColorScheme } from "react-native";
 
 export function useTheme() {
